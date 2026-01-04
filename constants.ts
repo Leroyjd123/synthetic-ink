@@ -14,34 +14,43 @@ export const SUGGESTIONS_DATA: SuggestionCategory[] = [
   {
     id: 'tone',
     label: 'Tone',
-    placeholder: 'e.g., Melancholy...',
+    placeholder: 'e.g., Reflective...',
     suggestions: [
-      'Whimsical', 'Melancholic', 'Optimistic', 'Mysterious', 'Romantic',
-      'Happy', 'Sad', 'Humorous', 'Formal', 'Dark',
-      'Nostalgic', 'Hopeful', 'Sarcastic', 'Serene', 'Dramatic'
+      'Reflective', 'Tender', 'Joyful', 'Romantic', 'Serene',
+      'Melancholic', 'Longing', 'Intimate', 'Dramatic', 'Reverent',
+      'Playful', 'Whimsical', 'Humorous', 'Satirical', 'Ironic',
+      'Somber', 'Tragic', 'Haunting'
     ],
   },
   {
     id: 'style',
     label: 'Style',
-    placeholder: 'e.g., Haiku...',
+    placeholder: 'e.g., Free Verse...',
     suggestions: [
-      'Haiku', 'Free Verse', 'Sonnet', 'Limerick', 'Acrostic',
-      'Ballad', 'Ode', 'Elegy', 'Narrative', 'Villanelle',
-      'Couplet', 'Epigram', 'Tanka', 'Blank Verse', 'Lyric'
+      'Free Verse', 'Haiku', 'Sonnet', 'Ode', 'Narrative Poem', 'Elegy',
+      'Villanelle', 'Ballad', 'Limerick', 'Prose Poem', 'Ekphrastic',
+      'Lyric', 'Experimental'
     ],
   },
   {
     id: 'length',
     label: 'Length',
-    placeholder: 'e.g., Short...',
-    suggestions: ['Short (4 lines)', 'Medium (8 lines)', 'Brief', 'Haiku length', 'Single Stanza'],
+    placeholder: 'e.g., Short (4 lines)...',
+    suggestions: [
+      'One Line',
+      'Haiku (3 lines)',
+      'Short (4 lines)',
+      'Brief (5–6 lines)',
+      'Medium (8 lines)',
+      'Sonnet (14 lines)',
+      'Extended (16–20 lines)'
+    ],
   },
 ];
 
 export const DEFAULT_CONFIG = {
   theme: 'Nature',
-  tone: 'Peaceful',
+  tone: 'Reflective',
   style: 'Free Verse',
-  length: 'Short',
+  length: 'Short (4 lines)',
 };

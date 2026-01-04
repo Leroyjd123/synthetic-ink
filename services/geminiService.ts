@@ -10,11 +10,32 @@ export const generatePoem = async (config: PoemConfig): Promise<string> => {
   const style = config.style.trim() || DEFAULT_CONFIG.style;
   const length = config.length.trim() || DEFAULT_CONFIG.length;
 
-  const prompt = `Write a poem about "${theme}".
-    Tone: ${tone}.
-    Style: ${style}.
-    Length: ${length}.
-    Constraint: Keep the poem under 10 lines maximum. Do not include a title. Just the poem text.`;
+  const prompt = `
+Write a poem that strictly adheres to the following constraints.
+
+THEME:
+"${theme}"
+The poem must clearly and consistently explore this theme. Do not introduce unrelated imagery or concepts.
+
+TONE:
+${tone}
+Maintain this emotional tone throughout the poem. Avoid tonal shifts unless they reinforce the chosen tone.
+
+STYLE:
+${style}
+Write in a manner consistent with this poetic style, including its typical voice, imagery, and structure.
+
+LENGTH:
+${length}
+Keep the poem concise and proportional to this length.
+
+FORMAL CONSTRAINTS:
+- No title
+- No explanations or commentary
+- Output only the poem text
+
+The poem should feel deliberate, cohesive, and emotionally focused.
+`;
 
   try {
     const response = await ai.models.generateContent({
