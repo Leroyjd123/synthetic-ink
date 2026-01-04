@@ -2,9 +2,13 @@ import React from 'react';
 import { PoemRecord } from '../types';
 
 interface PoemListProps {
+  /** Array of poem records to display */
   poems: PoemRecord[];
+  /** Type of list: 'history' (recent gens) or 'saved' (favorites) */
   type: 'history' | 'saved';
+  /** Callback when a poem is clicked */
   onSelect: (poem: PoemRecord) => void;
+  /** Optional callback to delete a saved poem */
   onDelete?: (id: string) => void;
 }
 
@@ -23,24 +27,24 @@ const PoemList: React.FC<PoemListProps> = ({ poems, type, onSelect, onDelete }) 
   return (
     <div className="space-y-3 h-full overflow-y-auto pr-2 custom-scrollbar animate-fade-in">
       {poems.map((poem) => (
-        <div 
-          key={poem.id} 
+        <div
+          key={poem.id}
           className="group relative bg-white/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 hover:shadow-md dark:hover:shadow-slate-900/50 transition-all duration-200 cursor-pointer"
           onClick={() => onSelect(poem)}
         >
           <div className="flex justify-between items-start mb-2">
-             <div className="flex flex-wrap gap-2 text-[10px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500">
-               <span className="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-500 dark:text-slate-300">{poem.config.theme || 'Untitled'}</span>
-               <span>•</span>
-               <span>{poem.config.style || 'Free Verse'}</span>
-             </div>
-             <span className="text-[10px] text-slate-300 dark:text-slate-600 font-mono">{new Date(poem.date).toLocaleDateString()}</span>
+            <div className="flex flex-wrap gap-2 text-[10px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500">
+              <span className="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-500 dark:text-slate-300">{poem.config.theme || 'Untitled'}</span>
+              <span>•</span>
+              <span>{poem.config.style || 'Free Verse'}</span>
+            </div>
+            <span className="text-[10px] text-slate-300 dark:text-slate-600 font-mono">{new Date(poem.date).toLocaleDateString()}</span>
           </div>
-          
+
           <p className="font-serif text-slate-700 dark:text-slate-300 text-sm line-clamp-2 italic leading-relaxed">
             {poem.text}
           </p>
-          
+
           {onDelete && (
             <button
               onClick={(e) => {

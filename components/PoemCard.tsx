@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 
 interface PoemCardProps {
+  /** The poem text content to display */
   content: string;
+  /** Whether the poem is currently saved in local storage */
   isSaved: boolean;
+  /** Callback to toggle save status */
   onSave: () => void;
 }
 
@@ -21,7 +24,7 @@ const PoemCard: React.FC<PoemCardProps> = ({ content, isSaved, onSave }) => {
 
   return (
     <div className="w-full max-w-lg mx-auto p-6 md:p-8 bg-white dark:bg-slate-800 rounded-xl shadow-xl shadow-indigo-100/50 dark:shadow-none animate-fade-in border border-slate-50 dark:border-slate-700 flex flex-col min-h-[320px]">
-      
+
       {/* Header Actions */}
       <div className="flex justify-end gap-3 mb-2">
         <button
@@ -47,7 +50,7 @@ const PoemCard: React.FC<PoemCardProps> = ({ content, isSaved, onSave }) => {
           )}
         </button>
       </div>
-      
+
       {/* Poem Content */}
       <div className="flex-grow flex items-center justify-center py-6">
         <div className="prose prose-slate dark:prose-invert prose-lg mx-auto text-center w-full">

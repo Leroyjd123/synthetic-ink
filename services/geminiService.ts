@@ -1,56 +1,34 @@
-import { GoogleGenAI } from "@google/genai";
 import { PoemConfig } from '../types';
 import { DEFAULT_CONFIG } from '../constants';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
+/**
+ * Calls the local backend to generate a poem.
+ * @param config User-defined configuration (theme, tone, style, length).
+ * @returns The generated poem text.
+ * @throws Error if the backend fails or returns an error.
+ */
 export const generatePoem = async (config: PoemConfig): Promise<string> => {
   const theme = config.theme.trim() || DEFAULT_CONFIG.theme;
   const tone = config.tone.trim() || DEFAULT_CONFIG.tone;
   const style = config.style.trim() || DEFAULT_CONFIG.style;
   const length = config.length.trim() || DEFAULT_CONFIG.length;
 
-  const prompt = `
-Write a poem that strictly adheres to the following constraints.
-
-THEME:
-"${theme}"
-The poem must clearly and consistently explore this theme. Do not introduce unrelated imagery or concepts.
-
-TONE:
-${tone}
-Maintain this emotional tone throughout the poem. Avoid tonal shifts unless they reinforce the chosen tone.
-
-STYLE:
-${style}
-Write in a manner consistent with this poetic style, including its typical voice, imagery, and structure.
-
-LENGTH:
-${length}
-Keep the poem concise and proportional to this length.
-
-FORMAL CONSTRAINTS:
-- No title
-- No explanations or commentary
-- Output only the poem text
-
-The poem should feel deliberate, cohesive, and emotionally focused.
-`;
-
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: prompt,
-      config: {
-        thinkingConfig: { thinkingBudget: 0 }, // Disable thinking for simple creative tasks to improve latency
-      }
+    const response = await fetch('http://localhost:3001/api/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ theme, tone, style, length }),
     });
 
-    const text = response.text;
-    if (!text) {
-      throw new Error("No poem generated.");
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to generate poem');
     }
-    return text.trim();
+
+    const data = await response.json();
+    return data.text;
   } catch (error) {
     console.error("Error generating poem:", error);
     throw new Error("Failed to generate poem. Please try again.");

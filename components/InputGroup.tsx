@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
 
 interface InputGroupProps {
+  /** Unique ID for the input element */
   id: string;
+  /** Label text for the group */
   label: string;
+  /** Current value of the input */
   value: string;
+  /** Placeholder text */
   placeholder: string;
+  /** List of clickable suggestion pills */
   suggestions: string[];
+  /** Callback when value changes (via typing or clicking suggestion) */
   onChange: (value: string) => void;
 }
 
@@ -32,9 +38,9 @@ const InputGroup: React.FC<InputGroupProps> = ({
 
   // Show 4 items by default
   const VISIBLE_COUNT = 4;
-  
-  const displayedSuggestions = isExpanded 
-    ? shuffledSuggestions 
+
+  const displayedSuggestions = isExpanded
+    ? shuffledSuggestions
     : shuffledSuggestions.slice(0, VISIBLE_COUNT);
 
   const hasMore = shuffledSuggestions.length > VISIBLE_COUNT;
@@ -63,7 +69,7 @@ const InputGroup: React.FC<InputGroupProps> = ({
             {suggestion}
           </button>
         ))}
-        
+
         {hasMore && (
           <button
             type="button"
@@ -73,7 +79,7 @@ const InputGroup: React.FC<InputGroupProps> = ({
             aria-label={isExpanded ? "Show less suggestions" : "Show more suggestions"}
           >
             {isExpanded ? (
-               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
                 <path fillRule="evenodd" d="M4 10a.75.75 0 01.75-.75h10.5a.75.75 0 010 1.5H4.75A.75.75 0 014 10z" clipRule="evenodd" />
               </svg>
             ) : (
