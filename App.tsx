@@ -92,6 +92,11 @@ const App: React.FC = () => {
     setConfig(newConfig);
   }, []);
 
+  // Run randomizer on initial mount
+  useEffect(() => {
+    handleRandomize();
+  }, [handleRandomize]);
+
   const handleGenerate = async () => {
     setLoading(true);
     setError(null);
@@ -133,10 +138,6 @@ const App: React.FC = () => {
     setCurrentPoemRecord(poem);
     setActiveTab('generate');
     setConfig(poem.config);
-  };
-
-  const handleFeedback = (type: 'good' | 'bad') => {
-    console.log(`User marked poem ${currentPoemRecord?.id} as ${type}`);
   };
 
   const isCurrentSaved = currentPoemRecord ? savedPoems.some(p => p.id === currentPoemRecord.id) : false;
@@ -273,7 +274,6 @@ const App: React.FC = () => {
                     content={currentPoemRecord.text} 
                     isSaved={isCurrentSaved}
                     onSave={() => toggleSavePoem(currentPoemRecord)}
-                    onFeedback={handleFeedback}
                   />
                 )}
               </div>
