@@ -1,0 +1,250 @@
+import React, { useState, useCallback, useEffect } from 'react';
+import { PoemConfig, PoemRecord } from './types';
+import { SUGGESTIONS_DATA } from './constants';
+import { generatePoem } from './services/geminiService';
+import InputGroup from './components/InputGroup';
+import PoemCard from './components/PoemCard';
+import PoemList from './components/PoemList';
+
+const App: React.FC = () => {
+  const [config, setConfig] = useState<PoemConfig>({
+    theme: '',
+    tone: '',
+    style: '',
+    length: '',
+  });
+
+  const [activeTab, setActiveTab] = useState<'generate' | 'saved' | 'history'>('generate');
+  const [currentPoemRecord, setCurrentPoemRecord] = useState<PoemRecord | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Persistent State
+  const [history, setHistory] = useState<PoemRecord[]>(() => {
+    const saved = localStorage.getItem('poem_history');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [savedPoems, setSavedPoems] = useState<PoemRecord[]>(() => {
+    const saved = localStorage.getItem('poem_saved');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('poem_history', JSON.stringify(history));
+  }, [history]);
+
+  useEffect(() => {
+    localStorage.setItem('poem_saved', JSON.stringify(savedPoems));
+  }, [savedPoems]);
+
+  const handleInputChange = (field: keyof PoemConfig, value: string) => {
+    setConfig((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleRandomize = useCallback(() => {
+    const newConfig: PoemConfig = {
+      theme: '',
+      tone: '',
+      style: '',
+      length: '',
+    };
+
+    SUGGESTIONS_DATA.forEach((category) => {
+      const randomIndex = Math.floor(Math.random() * category.suggestions.length);
+      newConfig[category.id] = category.suggestions[randomIndex];
+    });
+
+    setConfig(newConfig);
+  }, []);
+
+  const handleGenerate = async () => {
+    setLoading(true);
+    setError(null);
+    setActiveTab('generate');
+    setCurrentPoemRecord(null);
+
+    try {
+      const text = await generatePoem(config);
+      const newRecord: PoemRecord = {
+        id: crypto.randomUUID(),
+        text,
+        date: new Date().toISOString(),
+        config: { ...config }
+      };
+
+      setCurrentPoemRecord(newRecord);
+      setHistory((prev) => [newRecord, ...prev].slice(0, 50)); // Keep last 50
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleSavePoem = (poem: PoemRecord) => {
+    const isSaved = savedPoems.some(p => p.id === poem.id);
+    if (isSaved) {
+      setSavedPoems(prev => prev.filter(p => p.id !== poem.id));
+    } else {
+      setSavedPoems(prev => [poem, ...prev]);
+    }
+  };
+
+  const deleteSavedPoem = (id: string) => {
+    setSavedPoems(prev => prev.filter(p => p.id !== id));
+  };
+
+  const handleSelectPoem = (poem: PoemRecord) => {
+    setCurrentPoemRecord(poem);
+    setActiveTab('generate'); // Switch back to view it
+    setConfig(poem.config); // Optional: reload config
+  };
+
+  const handleFeedback = (type: 'good' | 'bad') => {
+    // In a real app, send to analytics
+    console.log(`User marked poem ${currentPoemRecord?.id} as ${type}`);
+  };
+
+  const isCurrentSaved = currentPoemRecord ? savedPoems.some(p => p.id === currentPoemRecord.id) : false;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-slate-800 font-sans selection:bg-indigo-100 selection:text-indigo-900 py-12 px-4 sm:px-6">
+      <div className="max-w-5xl mx-auto">
+        <header className="text-center mb-12 animate-fade-in">
+          <h1 className="text-4xl md:text-5xl font-serif font-medium text-slate-900 mb-3 tracking-tight">
+            Synthetic Ink
+          </h1>
+          <p className="text-slate-500 text-lg max-w-md mx-auto leading-relaxed italic">
+            “Written by a machine. Felt by you.”
+          </p>
+        </header>
+
+        <main className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-start">
+          {/* Controls Section (Left) */}
+          <div className="md:col-span-5 space-y-8 bg-white/40 p-6 md:p-8 rounded-3xl backdrop-blur-md border border-white/50 shadow-sm animate-fade-in sticky top-8">
+            <div className="space-y-6">
+              {SUGGESTIONS_DATA.map((category) => (
+                <InputGroup
+                  key={category.id}
+                  id={category.id}
+                  label={category.label}
+                  value={config[category.id]}
+                  placeholder={category.placeholder}
+                  suggestions={category.suggestions}
+                  onChange={(val) => handleInputChange(category.id, val)}
+                />
+              ))}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <button
+                onClick={handleRandomize}
+                disabled={loading}
+                className="flex-1 px-6 py-3 rounded-xl border border-slate-300 text-slate-600 font-medium hover:bg-slate-50 hover:border-slate-400 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Randomize
+              </button>
+              <button
+                onClick={handleGenerate}
+                disabled={loading}
+                className="flex-1 px-6 py-3 rounded-xl bg-slate-900 text-white font-medium hover:bg-slate-800 shadow-lg shadow-slate-900/10 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
+              >
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                     <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Creating...
+                  </span>
+                ) : (
+                  'Generate'
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Display Section (Right) */}
+          <div className="md:col-span-7 w-full flex flex-col min-h-[500px]">
+            {/* Tabs */}
+            <div className="flex space-x-1 mb-6 border-b border-slate-200/60 pb-1">
+              {['generate', 'saved', 'history'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab as any)}
+                  className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors capitalize ${
+                    activeTab === tab 
+                      ? 'text-indigo-600 border-b-2 border-indigo-600 bg-white/30' 
+                      : 'text-slate-500 hover:text-slate-700 hover:bg-white/20'
+                  }`}
+                >
+                  {tab === 'generate' ? 'Canvas' : tab}
+                </button>
+              ))}
+            </div>
+
+            {/* Content Area */}
+            <div className="flex-1">
+              {activeTab === 'generate' && (
+                <>
+                  {error && (
+                    <div className="w-full p-4 mb-6 text-sm text-rose-600 bg-rose-50 border border-rose-100 rounded-xl animate-fade-in text-center">
+                      {error}
+                    </div>
+                  )}
+
+                  {loading && !currentPoemRecord && (
+                     <div className="w-full max-w-lg mx-auto mt-12 flex flex-col items-center justify-center space-y-4 animate-pulse opacity-60">
+                        <div className="h-4 w-3/4 bg-indigo-200/50 rounded"></div>
+                        <div className="h-4 w-2/3 bg-indigo-200/50 rounded"></div>
+                        <div className="h-4 w-4/5 bg-indigo-200/50 rounded"></div>
+                        <div className="h-4 w-1/2 bg-indigo-200/50 rounded"></div>
+                     </div>
+                  )}
+
+                  {!loading && !currentPoemRecord && !error && (
+                    <div className="h-full flex flex-col items-center justify-center text-slate-400 mt-12 text-center px-4">
+                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-16 h-16 mb-4 opacity-30">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                      </svg>
+                      <p className="text-sm font-light">Fill in the details or click Randomize to begin.</p>
+                    </div>
+                  )}
+
+                  {currentPoemRecord && !loading && (
+                    <PoemCard 
+                      content={currentPoemRecord.text} 
+                      isSaved={isCurrentSaved}
+                      onSave={() => toggleSavePoem(currentPoemRecord)}
+                      onFeedback={handleFeedback}
+                    />
+                  )}
+                </>
+              )}
+
+              {activeTab === 'saved' && (
+                <PoemList 
+                  poems={savedPoems} 
+                  type="saved" 
+                  onSelect={handleSelectPoem} 
+                  onDelete={deleteSavedPoem} 
+                />
+              )}
+
+              {activeTab === 'history' && (
+                <PoemList 
+                  poems={history} 
+                  type="history" 
+                  onSelect={handleSelectPoem} 
+                />
+              )}
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default App;
