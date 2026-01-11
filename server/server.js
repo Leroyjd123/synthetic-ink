@@ -22,10 +22,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(cors({
-    origin: '*', // Allow all origins for simplicity in this setup, or specify your frontend URL
+    origin: '*',
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Handle preflight OPTIONS requests explicitly
+app.options('*', (req, res) => {
+    res.status(200).end();
+});
+
 app.use(express.json());
 
 const apiKey = process.env.GEMINI_API_KEY;
