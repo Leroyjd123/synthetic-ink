@@ -13,8 +13,11 @@ export const generatePoem = async (config: PoemConfig): Promise<string> => {
   const style = config.style.trim() || DEFAULT_CONFIG.style;
   const length = config.length.trim() || DEFAULT_CONFIG.length;
 
+  const apiBaseUrl = import.meta.env.VITE_API_URL || '';
+  const apiEndpoint = `${apiBaseUrl}/api/generate`;
+
   try {
-    const response = await fetch('/api/generate', {
+    const response = await fetch(apiEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

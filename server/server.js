@@ -114,3 +114,5 @@ The poem should feel deliberate, cohesive, and emotionally focused.
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
+
+export default app;
