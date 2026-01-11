@@ -35,14 +35,17 @@ app.options('*', (req, res) => {
 app.use(express.json());
 
 const apiKey = process.env.GEMINI_API_KEY;
-console.log("GEMINI_API_KEY loaded:", apiKey ? "YES (starts with " + apiKey.substring(0, 4) + "...)" : "NO");
+console.log("GEMINI_API_KEY presence check:", apiKey ? "Present" : "Missing");
 
-if (!apiKey) {
-    console.error("ERROR: GEMINI_API_KEY is not set in .env.local");
-    process.exit(1);
+// Define AI instance only if key is present, or handle inside the route
+let ai = null;
+if (apiKey) {
+    try {
+        ai = new GoogleGenAI({ apiKey });
+    } catch (e) {
+        console.error("Failed to initialize GoogleGenAI:", e);
+    }
 }
-
-const ai = new GoogleGenAI({ apiKey });
 
 app.get('/', (req, res) => {
     res.json({ status: 'Synthetic Ink API is healthy' });
@@ -50,6 +53,11 @@ app.get('/', (req, res) => {
 
 app.post('/api/generate', async (req, res) => {
     console.log("Incoming request to /api/generate:", req.body);
+
+    if (!ai) {
+        return res.status(500).json({ error: "Gemini API key is missing or invalid on the server." });
+    }
+
     try {
         const { theme, tone, style, length } = req.body;
 
