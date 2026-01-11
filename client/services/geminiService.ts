@@ -13,7 +13,8 @@ export const generatePoem = async (config: PoemConfig): Promise<string> => {
   const style = config.style.trim() || DEFAULT_CONFIG.style;
   const length = config.length.trim() || DEFAULT_CONFIG.length;
 
-  const apiBaseUrl = import.meta.env.VITE_API_URL || '';
+  const rawApiBaseUrl = import.meta.env.VITE_API_URL || '';
+  const apiBaseUrl = rawApiBaseUrl.endsWith('/') ? rawApiBaseUrl.slice(0, -1) : rawApiBaseUrl;
   const apiEndpoint = `${apiBaseUrl}/api/generate`;
 
   try {
