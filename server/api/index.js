@@ -20,7 +20,7 @@ dotenv.config({ path: path.join(__dirname, '../.env.local') });
 
 const app = express();
 const port = 3001;
-const VERSION = '1.1.0';
+const VERSION = '1.2.0';
 
 app.use(cors({
     origin: '*',
@@ -28,9 +28,15 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Handle preflight OPTIONS requests explicitly
-app.options('(.*)', (req, res) => {
-    res.status(200).end();
+// Handle preflight OPTIONS requests explicitly using middleware to avoid Express 5 path-to-regexp issues
+app.use((req, res, next) => {
+    if (req.method === 'OPTIONS') {
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        return res.status(200).end();
+    }
+    next();
 });
 
 app.use(express.json());

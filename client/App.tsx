@@ -153,7 +153,7 @@ const App: React.FC = () => {
       <header className="flex-none px-6 py-4 flex items-center justify-between border-b border-slate-200/50 dark:border-slate-800/50 bg-white/30 dark:bg-slate-900/30 backdrop-blur-md">
         <div>
           <h1 className="text-xl md:text-2xl font-serif font-medium text-slate-900 dark:text-white tracking-tight">
-            Synthetic Ink <span className="text-[10px] font-sans font-normal align-top bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded ml-1 text-slate-500 dark:text-slate-400">v1.1.0</span>
+            Synthetic Ink <span className="text-[10px] font-sans font-normal align-top bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded ml-1 text-slate-500 dark:text-slate-400">v1.2.0</span>
           </h1>
           <p className="hidden md:block text-xs text-slate-500 dark:text-slate-400 italic">
             “Written by a machine. Felt by you.”
