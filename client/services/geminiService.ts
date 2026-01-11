@@ -23,8 +23,16 @@ export const generatePoem = async (config: PoemConfig): Promise<string> => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to generate poem');
+      let errorMessage = 'Failed to generate poem';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorMessage;
+      } catch (e) {
+        // If not JSON, try to get text or just use default
+        const textError = await response.text();
+        errorMessage = textError || errorMessage;
+      }
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();

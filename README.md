@@ -39,25 +39,38 @@ Follow these steps to run Synthetic Ink locally.
 
 2.  **Install dependencies**
 
+    You can install dependencies for both the client and server from the root:
+
     ```bash
-    npm install
+    npm run install:all
     ```
 
 3.  **Configure Environment Variables**
 
-    Create a `.env.local` file in the root directory and add your Gemini API key:
+    Create a `.env.local` file in the `server/` directory and add your Gemini API key:
 
-    ```env
-    GEMINI_API_KEY=your_actual_api_key_here
+    ```bash
+    # Go to server directory
+    cd server
+    # Create .env.local
+    echo "GEMINI_API_KEY=your_actual_api_key_here" > .env.local
     ```
 
 4.  **Run the application**
 
-    ```bash
-    npm run dev
-    ```
+    Both components must be run separately in different terminals:
 
-    This command uses `concurrently` to start both the **Backend Server** (port 3001) and the **Frontend Client** (port 3000).
+    **Terminal 1 (Backend Server):**
+    ```bash
+    npm run server:dev
+    ```
+    The server will run at `http://localhost:3001`.
+
+    **Terminal 2 (Frontend Client):**
+    ```bash
+    npm run client:dev
+    ```
+    The frontend will run at `http://localhost:3000`.
 
     Open http://localhost:3000 to view it in the browser.
 

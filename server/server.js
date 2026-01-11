@@ -10,7 +10,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
 
-dotenv.config({ path: './.env.local' });
+dotenv.config({ path: '.env.local' });
 
 const app = express();
 const port = 3001;
@@ -24,10 +24,8 @@ const __dirname = path.dirname(__filename);
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, '../dist')));
-
 const apiKey = process.env.GEMINI_API_KEY;
+console.log("GEMINI_API_KEY loaded:", apiKey ? "YES (starts with " + apiKey.substring(0, 4) + "...)" : "NO");
 
 if (!apiKey) {
     console.error("ERROR: GEMINI_API_KEY is not set in .env.local");
@@ -37,6 +35,7 @@ if (!apiKey) {
 const ai = new GoogleGenAI({ apiKey });
 
 app.post('/api/generate', async (req, res) => {
+    console.log("Incoming request to /api/generate:", req.body);
     try {
         const { theme, tone, style, length } = req.body;
 
@@ -68,11 +67,8 @@ The poem should feel deliberate, cohesive, and emotionally focused.
 `;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp', // Updated to latest flash model
-            contents: prompt,
-            config: {
-                thinkingConfig: { thinkingBudget: 0 },
-            }
+            model: 'gemini-2.0-flash-exp',
+            contents: prompt
         });
 
         const text = response.text;
@@ -106,18 +102,14 @@ The poem should feel deliberate, cohesive, and emotionally focused.
             message = "Service overloaded. Please try again later.";
             console.warn(`[503] Service overloaded: ${error.message}`);
         } else {
-            console.error("Error generating poem:", error);
+            console.error("Error generating poem (Full Error):", error);
         }
 
         res.status(status).json({ error: message });
     }
 });
 
-// The "catchall" handler: for any request that doesn't
-// match one above, send back React's index.html file.
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
-});
+// Server is now dedicated API server
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
