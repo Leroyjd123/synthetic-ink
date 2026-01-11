@@ -10,16 +10,17 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
 
-dotenv.config({ path: path.join(__dirname, '../.env.local') });
-
-const app = express();
-const port = 3001;
-
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, '../.env.local') });
+
+const app = express();
+const port = 3001;
+const VERSION = '1.1.0';
 
 app.use(cors({
     origin: '*',
@@ -48,7 +49,7 @@ if (apiKey) {
 }
 
 app.get('/', (req, res) => {
-    res.json({ status: 'Synthetic Ink API is healthy' });
+    res.json({ status: 'Synthetic Ink API is healthy', version: VERSION });
 });
 
 app.post('/api/generate', async (req, res) => {
@@ -98,7 +99,7 @@ The poem should feel deliberate, cohesive, and emotionally focused.
             throw new Error("No poem generated.");
         }
 
-        res.json({ text: text.trim() });
+        res.json({ text: text.trim(), version: VERSION });
     } catch (error) {
         let status = 500;
         let message = "Failed to generate poem.";
