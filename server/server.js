@@ -34,6 +34,10 @@ if (!apiKey) {
 
 const ai = new GoogleGenAI({ apiKey });
 
+app.get('/', (req, res) => {
+    res.json({ status: 'Synthetic Ink API is healthy' });
+});
+
 app.post('/api/generate', async (req, res) => {
     console.log("Incoming request to /api/generate:", req.body);
     try {
