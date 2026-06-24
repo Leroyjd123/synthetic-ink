@@ -20,7 +20,7 @@ dotenv.config({ path: path.join(__dirname, '../.env.local') });
 
 const app = express();
 const port = 3001;
-const VERSION = '1.2.0';
+const VERSION = '1.3.0';
 
 app.use(cors({
     origin: '*',
@@ -96,7 +96,7 @@ The poem should feel deliberate, cohesive, and emotionally focused.
 `;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-2.0-flash',
             contents: prompt
         });
 
